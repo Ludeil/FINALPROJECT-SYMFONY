@@ -1,0 +1,69 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block content %}
+    <h1>Dormitories</h1>
+
+    <div class="two-col">
+        <section class="panel">
+            <h2>{{ edit_dormitory ? 'Edit Dormitory' : 'Add Dormitory' }}</h2>
+            <form action="{{ path('admin_dormitories') }}" method="post">
+                <input type="hidden" name="_token" value="{{ csrf_token }}">
+                <input type="hidden" name="action" value="{{ edit_dormitory ? 'update' : 'create' }}">
+                {% if edit_dormitory %}
+                    <input type="hidden" name="id" value="{{ edit_dormitory.id }}">
+                {% endif %}
+
+                <label for="dorm-name">Name</label>
+                <input id="dorm-name" name="name" maxlength="150" required value="{{ edit_dormitory ? edit_dormitory.name : '' }}">
+
+                <label for="dorm-location">Location</label>
+                <input id="dorm-location" name="location" maxlength="150" required value="{{ edit_dormitory ? edit_dormitory.location : '' }}">
+
+                <label for="dorm-address">Address</label>
+                <input id="dorm-address" name="address" maxlength="255" value="{{ edit_dormitory ? edit_dormitory.address : '' }}">
+
+                <label for="dorm-description">Description</label>
+                <textarea id="dorm-description" name="description">{{ edit_dormitory ? edit_dormitory.description : '' }}</textarea>
+
+                <label for="dorm-status">Status</label>
+                <select id="dorm-status" name="status" required>
+                    {% for value in statuses %}
+                        <option value="{{ value }}"{% if (edit_dormitory ? edit_dormitory.status : 'active') == value %} selected{% endif %}>{{ value|title }}</option>
+                    {% endfor %}
+                </select>
+
+                <div class="form-actions">
+                    <button class="primary" type="submit">{{ edit_dormitory ? 'Save Changes' : 'Add Dormitory' }}</button>
+                    {% if edit_dormitory %}<a class="secondary-button" href="{{ path('admin_dormitories') }}">Cancel Edit</a>{% endif %}
+                </div>
+            </form>
+        </section>
+
+        <section class="panel table-wrap">
+            <h2>Existing Locations</h2>
+            <table>
+                <thead><tr><th>Name</th><th>Location</th><th>Status</th><th>Actions</th></tr></thead>
+                <tbody>
+                {% for row in rows %}
+                    <tr>
+                        <td>{{ row.name }}</td>
+                        <td>{{ row.location }}</td>
+                        <td><span class="status {{ row.status }}">{{ row.status|title }}</span></td>
+                        <td class="action-cell">
+                            <a class="secondary-button" href="{{ path('admin_dormitories', {edit: row.id}) }}">Edit</a>
+                            <form action="{{ path('admin_dormitories') }}" method="post" class="inline-form" data-delete-form="dormitory">
+                                <input type="hidden" name="_token" value="{{ csrf_token }}">
+                                <input type="hidden" name="action" value="delete">
+                                <input type="hidden" name="id" value="{{ row.id }}">
+                                <button class="danger-button" type="submit">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="4">No dormitories have been added yet.</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </section>
+    </div>
+{% endblock %}

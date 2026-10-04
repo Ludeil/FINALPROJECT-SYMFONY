@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ title|default('Admin') }} | Obeda Dormitories</title>
+    <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
+</head>
+<body class="admin-page">
+    {% include 'admin/partials/_topbar.html.twig' %}
+
+    <div class="admin-layout">
+        {% include 'admin/partials/_sidebar.html.twig' %}
+
+        <div class="admin-content-wrap">
+            <main class="admin-main">
+                {% block content %}{% endblock %}
+            </main>
+
+            {% include 'admin/partials/_footer.html.twig' %}
+        </div>
+    </div>
+
+    <script src="{{ asset('js/admin.js') }}"></script>
+</body>
+</html>

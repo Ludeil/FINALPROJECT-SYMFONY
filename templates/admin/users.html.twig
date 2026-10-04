@@ -1,0 +1,88 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block content %}
+    <h1>Users</h1>
+
+    <div class="panel form-wide">
+        <h2>{{ edit_user ? 'Edit User' : 'Create User' }}</h2>
+        <form action="{{ path('admin_users') }}" method="post" class="form-grid">
+            <input type="hidden" name="_token" value="{{ csrf_token }}">
+            <input type="hidden" name="action" value="{{ edit_user ? 'update' : 'create' }}">
+            {% if edit_user %}<input type="hidden" name="id" value="{{ edit_user.id }}">{% endif %}
+
+            <div>
+                <label for="user-username">Username</label>
+                <input id="user-username" name="username" maxlength="50" required value="{{ edit_user ? edit_user.username : '' }}">
+            </div>
+            <div>
+                <label for="user-email">Email</label>
+                <input id="user-email" type="email" name="email" maxlength="255" required value="{{ edit_user ? edit_user.email : '' }}">
+            </div>
+            <div>
+                <label for="user-first-name">First Name</label>
+                <input id="user-first-name" name="first_name" maxlength="100" required value="{{ edit_user ? edit_user.firstName : '' }}">
+            </div>
+            <div>
+                <label for="user-last-name">Last Name</label>
+                <input id="user-last-name" name="last_name" maxlength="100" required value="{{ edit_user ? edit_user.lastName : '' }}">
+            </div>
+            <div>
+                <label for="user-phone">Phone</label>
+                <input id="user-phone" name="phone" maxlength="30" value="{{ edit_user ? edit_user.phone : '' }}">
+            </div>
+            <div>
+                <label for="user-password">Password</label>
+                <input id="user-password" type="password" name="password" minlength="8" {% if not edit_user %}required{% endif %}>
+                {% if edit_user %}<small>Leave blank to keep the current password.</small>{% endif %}
+            </div>
+            <div>
+                <label for="user-role">Role</label>
+                <select id="user-role" name="role" required>
+                    {% for value in roles %}<option value="{{ value }}"{% if (edit_user ? edit_user.role : 'applicant') == value %} selected{% endif %}>{{ value|title }}</option>{% endfor %}
+                </select>
+            </div>
+            <div>
+                <label for="user-status">Status</label>
+                <select id="user-status" name="account_status" required>
+                    {% for value in account_statuses %}<option value="{{ value }}"{% if (edit_user ? edit_user.accountStatus : 'active') == value %} selected{% endif %}>{{ value|title }}</option>{% endfor %}
+                </select>
+            </div>
+            <div class="form-actions">
+                <button class="primary" type="submit">{{ edit_user ? 'Save Changes' : 'Create User' }}</button>
+                {% if edit_user %}<a class="secondary-button" href="{{ path('admin_users') }}">Cancel Edit</a>{% endif %}
+            </div>
+        </form>
+    </div>
+
+    <div class="panel table-wrap">
+        <h2>All Users</h2>
+        <table>
+            <thead><tr><th>User</th><th>Contact</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody>
+            {% for row in rows %}
+                <tr>
+                    <td>{{ row.name }}<br><small>@{{ row.username }}</small></td>
+                    <td>{{ row.email }}<br><small>{{ row.phone }}</small></td>
+                    <td>{{ row.role|title }}</td>
+                    <td><span class="status {{ row.status }}">{{ row.status|title }}</span></td>
+                    <td class="action-cell">
+                        <a class="secondary-button" href="{{ path('admin_users', {edit: row.id}) }}">Edit</a>
+                        {% if row.role != 'admin' %}
+                            <form action="{{ path('admin_users') }}" method="post" class="inline-form" data-delete-form="user">
+                                <input type="hidden" name="_token" value="{{ csrf_token }}">
+                                <input type="hidden" name="action" value="delete">
+                                <input type="hidden" name="id" value="{{ row.id }}">
+                                <button class="danger-button" type="submit">Delete</button>
+                            </form>
+                        {% else %}
+                            <span class="protected-label">Protected</span>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% else %}
+                <tr><td colspan="5">No users yet.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

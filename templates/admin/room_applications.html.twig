@@ -1,0 +1,105 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block content %}
+    <h1>Room Applications</h1>
+
+    <div class="panel form-wide">
+        {% if edit_application and edit_application.status == 'moved_out' %}
+            <h2>Moved-out Record</h2>
+            <p>This application is a historical moved-out record and cannot be edited.</p>
+            <a class="secondary-button" href="{{ path('admin_room_applications') }}">Back to Applications</a>
+        {% else %}
+            <h2>{{ edit_application ? 'Edit Room Application' : 'Create Room Application' }}</h2>
+            <form action="{{ path('admin_room_applications') }}" method="post" class="form-grid">
+                <input type="hidden" name="_token" value="{{ csrf_token }}">
+                <input type="hidden" name="action" value="{{ edit_application ? 'update' : 'create' }}">
+                {% if edit_application %}<input type="hidden" name="id" value="{{ edit_application.id }}">{% endif %}
+
+                <div>
+                    <label for="app-user">Customer</label>
+                    <select id="app-user" name="user_id" required>
+                        <option value="">Choose customer</option>
+                        {% for user in users %}
+                            <option value="{{ user.id }}"{% if edit_application and edit_application.user and edit_application.user.id == user.id %} selected{% endif %}>{{ user.name }} — {{ user.email }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label for="app-room">Room</label>
+                    <select id="app-room" name="room_id" required>
+                        <option value="">Choose room</option>
+                        {% for room in rooms %}
+                            <option value="{{ room.id }}"{% if edit_application and edit_application.room and edit_application.room.id == room.id %} selected{% endif %}>{{ room.label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label for="app-move-in">Move-in Date</label>
+                    <input id="app-move-in" type="date" name="move_in_date" value="{{ edit_application and edit_application.moveInDate ? edit_application.moveInDate|date('Y-m-d') : '' }}">
+                </div>
+                <div>
+                    <label for="app-status">Status</label>
+                    <select id="app-status" name="status" required>
+                        {% for value in statuses %}
+                            {% if value != 'moved_out' %}
+                                <option value="{{ value }}"{% if (edit_application ? edit_application.status : 'pending') == value %} selected{% endif %}>{{ value|title }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label for="app-notes">Notes</label>
+                    <textarea id="app-notes" name="notes">{{ edit_application ? edit_application.notes : '' }}</textarea>
+                </div>
+                <div class="form-actions">
+                    <button class="primary" type="submit">{{ edit_application ? 'Save Changes' : 'Create Application' }}</button>
+                    {% if edit_application %}<a class="secondary-button" href="{{ path('admin_room_applications') }}">Cancel Edit</a>{% endif %}
+                </div>
+            </form>
+        {% endif %}
+    </div>
+
+    <div class="panel table-wrap">
+        <h2>All Room Applications</h2>
+        <table>
+            <thead><tr><th>Customer</th><th>Room</th><th>Move-in</th><th>Move-out</th><th>Notes</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody>
+            {% for row in rows %}
+                <tr>
+                    <td>{{ row.customer }}<br><small>{{ row.email }}</small></td>
+                    <td>{{ row.location }} / {{ row.room }}<br><small>{{ row.room_type }}</small></td>
+                    <td>{{ row.move_in }}</td>
+                    <td>{{ row.move_out }}</td>
+                    <td>{{ row.notes ?: '—' }}</td>
+                    <td><span class="status {{ row.status }}">{{ row.status|title }}</span></td>
+                    <td class="action-cell">
+                        {% if row.status == 'approved' %}
+                            <form action="{{ path('admin_room_applications') }}" method="post" class="inline-form">
+                                <input type="hidden" name="_token" value="{{ csrf_token }}">
+                                <input type="hidden" name="action" value="move_out">
+                                <input type="hidden" name="id" value="{{ row.id }}">
+                                <input type="date" name="move_out_date" required aria-label="Move-out date">
+                                <button class="secondary-button" type="submit">Mark Moved Out</button>
+                            </form>
+                        {% endif %}
+
+                        {% if row.status != 'moved_out' %}
+                            <a class="secondary-button" href="{{ path('admin_room_applications', {edit: row.id}) }}">Edit</a>
+                            <form action="{{ path('admin_room_applications') }}" method="post" class="inline-form" data-delete-form="room application">
+                                <input type="hidden" name="_token" value="{{ csrf_token }}">
+                                <input type="hidden" name="action" value="delete">
+                                <input type="hidden" name="id" value="{{ row.id }}">
+                                <button class="danger-button" type="submit">Delete</button>
+                            </form>
+                        {% else %}
+                            <span class="protected-label">Historical</span>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% else %}
+                <tr><td colspan="7">No room applications yet.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

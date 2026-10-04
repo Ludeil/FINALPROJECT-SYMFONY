@@ -1,0 +1,14 @@
+{% set route = app.request.attributes.get('_route') %}
+
+<aside class="admin-sidebar">
+    <div class="side-title">ADMIN</div>
+
+    <nav aria-label="Admin navigation">
+        <a class="{{ route == 'admin_dashboard' ? 'active' : '' }}" href="{{ path('admin_dashboard') }}">Dashboard</a>
+        <a class="{{ route == 'admin_viewing_requests' ? 'active' : '' }}" href="{{ path('admin_viewing_requests') }}">Viewing Requests</a>
+        <a class="{{ route == 'admin_room_applications' ? 'active' : '' }}" href="{{ path('admin_room_applications') }}">Room Applications</a>
+        <a class="{{ route == 'admin_rooms' ? 'active' : '' }}" href="{{ path('admin_rooms') }}">Rooms</a>
+        <a class="{{ route == 'admin_dormitories' ? 'active' : '' }}" href="{{ path('admin_dormitories') }}">Dormitories</a>
+        <a class="{{ route == 'admin_users' ? 'active' : '' }}" href="{{ path('admin_users') }}">Users</a>
+    </nav>
+</aside>

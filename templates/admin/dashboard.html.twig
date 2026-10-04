@@ -1,0 +1,23 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block content %}
+    <h1>Dashboard</h1>
+    <div class="welcome">Welcome, Administrator.</div>
+
+    <div class="stats">
+        <div><strong>{{ pending_viewings }}</strong><span>Pending Viewings</span></div>
+        <div><strong>{{ pending_applications }}</strong><span>Pending Applications</span></div>
+        <div><strong>{{ active_customers }}</strong><span>Active Customers</span></div>
+        <div><strong>{{ available_rooms }}</strong><span>Available Rooms</span></div>
+    </div>
+
+    <section class="panel">
+        <h2>Management</h2>
+        <div class="quick-links">
+            <a href="{{ path('admin_viewing_requests') }}">Manage viewing requests</a>
+            <a href="{{ path('admin_room_applications') }}">Manage room applications</a>
+            <a href="{{ path('admin_rooms') }}">Manage rooms</a>
+            <a href="{{ path('admin_users') }}">Manage customer accounts</a>
+        </div>
+    </section>
+{% endblock %}

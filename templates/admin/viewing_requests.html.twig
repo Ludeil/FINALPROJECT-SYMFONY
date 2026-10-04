@@ -1,0 +1,84 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block content %}
+    <h1>Viewing Requests</h1>
+
+    <div class="panel form-wide">
+        <h2>{{ edit_request ? 'Edit Viewing Request' : 'Create Viewing Request' }}</h2>
+        <form action="{{ path('admin_viewing_requests') }}" method="post" class="form-grid">
+            <input type="hidden" name="_token" value="{{ csrf_token }}">
+            <input type="hidden" name="action" value="{{ edit_request ? 'update' : 'create' }}">
+            {% if edit_request %}<input type="hidden" name="id" value="{{ edit_request.id }}">{% endif %}
+
+            <div>
+                <label for="view-user">Customer</label>
+                <select id="view-user" name="user_id" required>
+                    <option value="">Choose customer</option>
+                    {% for user in users %}
+                        <option value="{{ user.id }}"{% if edit_request and edit_request.user and edit_request.user.id == user.id %} selected{% endif %}>{{ user.name }} — {{ user.email }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label for="view-dorm">Dormitory</label>
+                <select id="view-dorm" name="dormitory_id" required>
+                    <option value="">Choose dormitory</option>
+                    {% for dorm in dorms %}
+                        <option value="{{ dorm.id }}"{% if edit_request and edit_request.dormitory and edit_request.dormitory.id == dorm.id %} selected{% endif %}>{{ dorm.label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label for="view-date">Preferred Date</label>
+                <input id="view-date" type="date" name="preferred_date" required value="{{ edit_request and edit_request.preferredDate ? edit_request.preferredDate|date('Y-m-d') : '' }}">
+            </div>
+            <div>
+                <label for="view-time">Preferred Time</label>
+                <input id="view-time" type="time" name="preferred_time" required value="{{ edit_request and edit_request.preferredTime ? edit_request.preferredTime|date('H:i') : '' }}">
+            </div>
+            <div>
+                <label for="view-status">Status</label>
+                <select id="view-status" name="status" required>
+                    {% for value in statuses %}<option value="{{ value }}"{% if (edit_request ? edit_request.status : 'pending') == value %} selected{% endif %}>{{ value|title }}</option>{% endfor %}
+                </select>
+            </div>
+            <div>
+                <label for="view-notes">Notes</label>
+                <textarea id="view-notes" name="notes">{{ edit_request ? edit_request.notes : '' }}</textarea>
+            </div>
+            <div class="form-actions">
+                <button class="primary" type="submit">{{ edit_request ? 'Save Changes' : 'Create Request' }}</button>
+                {% if edit_request %}<a class="secondary-button" href="{{ path('admin_viewing_requests') }}">Cancel Edit</a>{% endif %}
+            </div>
+        </form>
+    </div>
+
+    <div class="panel table-wrap">
+        <h2>All Viewing Requests</h2>
+        <table>
+            <thead><tr><th>Customer</th><th>Location</th><th>Date / Time</th><th>Notes</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody>
+            {% for row in rows %}
+                <tr>
+                    <td>{{ row.customer }}<br><small>{{ row.email }}</small></td>
+                    <td>{{ row.location }}<br><small>{{ row.dormitory }}</small></td>
+                    <td>{{ row.date }}<br>{{ row.time }}</td>
+                    <td>{{ row.notes ?: '—' }}</td>
+                    <td><span class="status {{ row.status }}">{{ row.status|title }}</span></td>
+                    <td class="action-cell">
+                        <a class="secondary-button" href="{{ path('admin_viewing_requests', {edit: row.id}) }}">Edit</a>
+                        <form action="{{ path('admin_viewing_requests') }}" method="post" class="inline-form" data-delete-form="viewing request">
+                            <input type="hidden" name="_token" value="{{ csrf_token }}">
+                            <input type="hidden" name="action" value="delete">
+                            <input type="hidden" name="id" value="{{ row.id }}">
+                            <button class="danger-button" type="submit">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            {% else %}
+                <tr><td colspan="6">No viewing requests yet.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

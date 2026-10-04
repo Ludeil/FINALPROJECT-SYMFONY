@@ -1,0 +1,153 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block content %}
+    <h1>Rooms</h1>
+
+    <div class="two-col">
+        <section class="panel">
+            <h2>{{ edit_room ? 'Edit Room' : 'Add Room' }}</h2>
+
+            <form action="{{ path('admin_rooms') }}" method="post">
+                <input type="hidden" name="_token" value="{{ csrf_token }}">
+                <input type="hidden" name="action" value="{{ edit_room ? 'update' : 'create' }}">
+
+                {% if edit_room %}
+                    <input type="hidden" name="id" value="{{ edit_room.id }}">
+                {% endif %}
+
+                <label for="room-dormitory">Dormitory</label>
+                <select id="room-dormitory" name="dormitory_id" required>
+                    <option value="">Choose dormitory</option>
+                    {% for dorm in dorms %}
+                        <option value="{{ dorm.id }}"{% if edit_room and edit_room.dormitory and edit_room.dormitory.id == dorm.id %} selected{% endif %}>
+                            {{ dorm.label }}
+                        </option>
+                    {% endfor %}
+                </select>
+
+                <label for="room-number">Room Number</label>
+                <input
+                    id="room-number"
+                    name="room_number"
+                    required
+                    maxlength="30"
+                    value="{{ edit_room ? edit_room.roomNumber : '' }}"
+                >
+
+                <label for="room-type">Type</label>
+                <select id="room-type" name="room_type" required>
+                    {% for value, label in types %}
+                        <option value="{{ value }}"{% if (edit_room ? edit_room.roomType : '4_person') == value %} selected{% endif %}>
+                            {{ label }}
+                        </option>
+                    {% endfor %}
+                </select>
+
+                <label for="room-capacity">Capacity</label>
+                <input
+                    id="room-capacity"
+                    type="number"
+                    name="capacity"
+                    min="1"
+                    max="255"
+                    required
+                    value="{{ edit_room ? edit_room.capacity : 4 }}"
+                >
+
+                <label for="room-rate">Monthly Rate</label>
+                <input
+                    id="room-rate"
+                    type="number"
+                    step="0.01"
+                    name="monthly_rate"
+                    min="0"
+                    required
+                    value="{{ edit_room ? edit_room.monthlyRate : '0.00' }}"
+                >
+
+                <label for="room-slots">Available Slots</label>
+                <input
+                    id="room-slots"
+                    type="number"
+                    name="available_slots"
+                    min="0"
+                    max="255"
+                    required
+                    value="{{ edit_room ? edit_room.availableSlots : 4 }}"
+                >
+
+                <label for="room-status">Status</label>
+                <select id="room-status" name="status" required>
+                    {% for value in statuses %}
+                        <option value="{{ value }}"{% if (edit_room ? edit_room.status : 'available') == value %} selected{% endif %}>
+                            {{ value|title }}
+                        </option>
+                    {% endfor %}
+                </select>
+
+                <div class="form-actions">
+                    <button class="primary" type="submit">
+                        {{ edit_room ? 'Save Changes' : 'Add Room' }}
+                    </button>
+
+                    {% if edit_room %}
+                        <a class="secondary-button" href="{{ path('admin_rooms') }}">Cancel Edit</a>
+                    {% endif %}
+                </div>
+            </form>
+        </section>
+
+        <section class="panel table-wrap">
+            <h2>Existing Rooms</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Location</th>
+                        <th>Room</th>
+                        <th>Type</th>
+                        <th>Monthly Rate</th>
+                        <th>Slots</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for row in rows %}
+                    <tr>
+                        <td>
+                            {{ row.location }}<br>
+                            <small>{{ row.dormitory }}</small>
+                        </td>
+                        <td>{{ row.room }}</td>
+                        <td>{{ row.type }}</td>
+                        <td>₱{{ row.monthly_rate|number_format(2, '.', ',') }}</td>
+                        <td>{{ row.slots }}</td>
+                        <td>
+                            <span class="status {{ row.status }}">{{ row.status|title }}</span>
+                        </td>
+                        <td class="action-cell">
+                            <a class="secondary-button" href="{{ path('admin_rooms', {edit: row.id}) }}">Edit</a>
+
+                            <form
+                                action="{{ path('admin_rooms') }}"
+                                method="post"
+                                class="inline-form"
+                                data-room-delete-form
+                            >
+                                <input type="hidden" name="_token" value="{{ csrf_token }}">
+                                <input type="hidden" name="action" value="delete">
+                                <input type="hidden" name="id" value="{{ row.id }}">
+                                <button class="danger-button" type="submit">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="7">No rooms have been added yet.</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </section>
+    </div>
+{% endblock %}
