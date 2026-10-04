@@ -3,11 +3,13 @@
 {% block content %}
     <h1>Room Applications</h1>
 
-    <div class="panel form-wide">
+    <div class="panel form-wide room-application-form-panel">
         {% if edit_application and edit_application.status == 'moved_out' %}
             <h2>Moved-out Record</h2>
             <p>This application is a historical moved-out record and cannot be edited.</p>
-            <a class="secondary-button" href="{{ path('admin_room_applications') }}">Back to Applications</a>
+            <div class="form-actions standalone-actions">
+                <a class="secondary-button" href="{{ path('admin_room_applications') }}">Back to Applications</a>
+            </div>
         {% else %}
             <h2>{{ edit_application ? 'Edit Room Application' : 'Create Room Application' }}</h2>
             <form action="{{ path('admin_room_applications') }}" method="post" class="form-grid">
@@ -47,34 +49,41 @@
                         {% endfor %}
                     </select>
                 </div>
-                <div>
+                <div class="form-field-full">
                     <label for="app-notes">Notes</label>
-                    <textarea id="app-notes" name="notes">{{ edit_application ? edit_application.notes : '' }}</textarea>
+                    <textarea id="app-notes" name="notes" rows="4">{{ edit_application ? edit_application.notes : '' }}</textarea>
                 </div>
-                <div class="form-actions">
-                    <button class="primary" type="submit">{{ edit_application ? 'Save Changes' : 'Create Application' }}</button>
-                    {% if edit_application %}<a class="secondary-button" href="{{ path('admin_room_applications') }}">Cancel Edit</a>{% endif %}
+                <div class="form-actions form-field-full">
+                    <div class="form-action-group">
+                        <button class="primary" type="submit">{{ edit_application ? 'Save Changes' : 'Create Application' }}</button>
+                        {% if edit_application %}
+                            <a class="secondary-button" href="{{ path('admin_room_applications') }}">Cancel Edit</a>
+                        {% endif %}
+                    </div>
                 </div>
             </form>
         {% endif %}
     </div>
 
     <div class="panel table-wrap">
-        <h2>All Room Applications</h2>
-        <table>
+        <div class="panel-heading-row">
+            <h2>All Room Applications</h2>
+            <span class="record-count">{{ rows|length }} record{{ rows|length == 1 ? '' : 's' }}</span>
+        </div>
+        <table class="room-applications-table">
             <thead><tr><th>Customer</th><th>Room</th><th>Move-in</th><th>Move-out</th><th>Notes</th><th>Status</th><th>Actions</th></tr></thead>
             <tbody>
             {% for row in rows %}
                 <tr>
-                    <td>{{ row.customer }}<br><small>{{ row.email }}</small></td>
-                    <td>{{ row.location }} / {{ row.room }}<br><small>{{ row.room_type }}</small></td>
-                    <td>{{ row.move_in }}</td>
-                    <td>{{ row.move_out }}</td>
-                    <td>{{ row.notes ?: '—' }}</td>
-                    <td><span class="status {{ row.status }}">{{ row.status|title }}</span></td>
-                    <td class="action-cell">
+                    <td data-label="Customer">{{ row.customer }}<br><small>{{ row.email }}</small></td>
+                    <td data-label="Room">{{ row.location }} / {{ row.room }}<br><small>{{ row.room_type }}</small></td>
+                    <td data-label="Move-in">{{ row.move_in }}</td>
+                    <td data-label="Move-out">{{ row.move_out }}</td>
+                    <td class="notes-cell" data-label="Notes">{{ row.notes ?: '—' }}</td>
+                    <td data-label="Status"><span class="status {{ row.status }}">{{ row.status|title }}</span></td>
+                    <td class="action-cell room-application-actions" data-label="Actions">
                         {% if row.status == 'approved' %}
-                            <form action="{{ path('admin_room_applications') }}" method="post" class="inline-form">
+                            <form action="{{ path('admin_room_applications') }}" method="post" class="inline-form action-stack-form">
                                 <input type="hidden" name="_token" value="{{ csrf_token }}">
                                 <input type="hidden" name="action" value="move_out">
                                 <input type="hidden" name="id" value="{{ row.id }}">
@@ -84,13 +93,15 @@
                         {% endif %}
 
                         {% if row.status != 'moved_out' %}
-                            <a class="secondary-button" href="{{ path('admin_room_applications', {edit: row.id}) }}">Edit</a>
-                            <form action="{{ path('admin_room_applications') }}" method="post" class="inline-form" data-delete-form="room application">
-                                <input type="hidden" name="_token" value="{{ csrf_token }}">
-                                <input type="hidden" name="action" value="delete">
-                                <input type="hidden" name="id" value="{{ row.id }}">
-                                <button class="danger-button" type="submit">Delete</button>
-                            </form>
+                            <div class="action-button-group">
+                                <a class="secondary-button" href="{{ path('admin_room_applications', {edit: row.id}) }}">Edit</a>
+                                <form action="{{ path('admin_room_applications') }}" method="post" class="inline-form" data-delete-form="room application">
+                                    <input type="hidden" name="_token" value="{{ csrf_token }}">
+                                    <input type="hidden" name="action" value="delete">
+                                    <input type="hidden" name="id" value="{{ row.id }}">
+                                    <button class="danger-button" type="submit">Delete</button>
+                                </form>
+                            </div>
                         {% else %}
                             <span class="protected-label">Historical</span>
                         {% endif %}

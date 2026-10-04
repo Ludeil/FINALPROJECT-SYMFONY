@@ -665,7 +665,8 @@ final class AdminController extends AbstractController
             ->addSelect('d')
             ->where('d.status = :status')
             ->setParameter('status', 'active')
-            ->orderBy('d.location', 'ASC')
+            ->orderBy('d.name', 'ASC')
+            ->addOrderBy('d.location', 'ASC')
             ->addOrderBy('r.roomNumber', 'ASC')
             ->getQuery()->getResult();
 
@@ -826,7 +827,8 @@ final class AdminController extends AbstractController
             ->createQueryBuilder('r')
             ->join('r.dormitory', 'd')
             ->addSelect('d')
-            ->orderBy('d.location', 'ASC')
+            ->orderBy('d.name', 'ASC')
+            ->addOrderBy('d.location', 'ASC')
             ->addOrderBy('r.roomNumber', 'ASC')
             ->getQuery()->getResult();
 
