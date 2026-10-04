@@ -209,13 +209,13 @@ final class AdminController extends AbstractController
             ];
         }, $dormitories);
 
-        return $this->render('admin/dormitories.html.twig', [
-            'title' => 'Dormitories',
-            'statuses' => self::DORMITORY_STATUSES,
-            'rows' => $rows,
-            'edit_dormitory' => $editDormitory,
-            'csrf_token' => $this->csrfTokenManager->getToken('dormitory_action')->getValue(),
-        ]);
+return $this->render('admin/dormitories.html.twig', [
+    'title' => 'Dormitories',
+    'statuses' => self::DORMITORY_STATUSES,
+    'rows' => $rows,
+    'edit_dormitory' => $editDormitory,
+    'csrf_token' => $this->csrfTokenManager->getToken('dormitory_action')->getValue(),
+]);
     }
 
     #[Route('/admin/users', name: 'admin_users', methods: ['GET', 'POST'])]
@@ -846,6 +846,21 @@ final class AdminController extends AbstractController
             ];
         }, $rooms);
 
+        // Group the rooms by dormitory so the admin page presents a separate
+        // section for each dormitory instead of one long mixed list.
+        $roomGroups = [];
+        foreach ($rows as $row) {
+            $groupKey = $row['dormitory'] . '|' . $row['location'];
+            if (!isset($roomGroups[$groupKey])) {
+                $roomGroups[$groupKey] = [
+                    'name' => $row['dormitory'],
+                    'location' => $row['location'],
+                    'rows' => [],
+                ];
+            }
+            $roomGroups[$groupKey]['rows'][] = $row;
+        }
+
         return $this->render('admin/rooms.html.twig', [
             'title' => 'Rooms',
             'dorms' => array_map(static fn (Dormitory $dormitory): array => [
@@ -855,6 +870,7 @@ final class AdminController extends AbstractController
             'types' => self::ROOM_TYPES,
             'statuses' => self::ROOM_STATUSES,
             'rows' => $rows,
+            'room_groups' => array_values($roomGroups),
             'edit_room' => $editRoom,
             'csrf_token' => $this->csrfTokenManager->getToken('room_action')->getValue(),
         ]);

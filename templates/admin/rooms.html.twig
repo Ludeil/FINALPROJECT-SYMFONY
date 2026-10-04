@@ -97,57 +97,68 @@
             </form>
         </section>
 
-        <section class="panel table-wrap">
-            <h2>Existing Rooms</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Location</th>
-                        <th>Room</th>
-                        <th>Type</th>
-                        <th>Monthly Rate</th>
-                        <th>Slots</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                {% for row in rows %}
-                    <tr>
-                        <td>
-                            {{ row.location }}<br>
-                            <small>{{ row.dormitory }}</small>
-                        </td>
-                        <td>{{ row.room }}</td>
-                        <td>{{ row.type }}</td>
-                        <td>₱{{ row.monthly_rate|number_format(2, '.', ',') }}</td>
-                        <td>{{ row.slots }}</td>
-                        <td>
-                            <span class="status {{ row.status }}">{{ row.status|title }}</span>
-                        </td>
-                        <td class="action-cell">
-                            <a class="secondary-button" href="{{ path('admin_rooms', {edit: row.id}) }}">Edit</a>
+        <section class="panel rooms-by-dorm-panel">
+            <div class="panel-heading-row">
+                <h2>Rooms by Dormitory</h2>
+                <span class="record-count">{{ rows|length }} room{{ rows|length == 1 ? '' : 's' }}</span>
+            </div>
 
-                            <form
-                                action="{{ path('admin_rooms') }}"
-                                method="post"
-                                class="inline-form"
-                                data-room-delete-form
-                            >
-                                <input type="hidden" name="_token" value="{{ csrf_token }}">
-                                <input type="hidden" name="action" value="delete">
-                                <input type="hidden" name="id" value="{{ row.id }}">
-                                <button class="danger-button" type="submit">Delete</button>
-                            </form>
-                        </td>
-                    </tr>
-                {% else %}
-                    <tr>
-                        <td colspan="7">No rooms have been added yet.</td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+            {% for group in room_groups %}
+                <div class="room-dorm-group">
+                    <div class="room-dorm-heading">
+                        <div>
+                            <h3>{{ group.name }}</h3>
+                            <p>{{ group.location }}</p>
+                        </div>
+                        <span class="record-count">{{ group.rows|length }} room{{ group.rows|length == 1 ? '' : 's' }}</span>
+                    </div>
+
+                    <div class="table-wrap room-group-table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Room</th>
+                                    <th>Type</th>
+                                    <th>Monthly Rate</th>
+                                    <th>Slots</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% for row in group.rows %}
+                                <tr>
+                                    <td><strong>{{ row.room }}</strong></td>
+                                    <td>{{ row.type }}</td>
+                                    <td>₱{{ row.monthly_rate|number_format(2, '.', ',') }}</td>
+                                    <td>{{ row.slots }}</td>
+                                    <td><span class="status {{ row.status }}">{{ row.status|title }}</span></td>
+                                    <td class="action-cell">
+                                        <a class="secondary-button" href="{{ path('admin_rooms', {edit: row.id}) }}">Edit</a>
+
+                                        <form
+                                            action="{{ path('admin_rooms') }}"
+                                            method="post"
+                                            class="inline-form"
+                                            data-room-delete-form
+                                        >
+                                            <input type="hidden" name="_token" value="{{ csrf_token }}">
+                                            <input type="hidden" name="action" value="delete">
+                                            <input type="hidden" name="id" value="{{ row.id }}">
+                                            <button class="danger-button" type="submit">Delete</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% else %}
+                                <tr><td colspan="6">No rooms have been added to this dormitory yet.</td></tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            {% else %}
+                <div class="empty-state">No rooms have been added yet.</div>
+            {% endfor %}
         </section>
     </div>
 {% endblock %}

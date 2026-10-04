@@ -54,7 +54,7 @@
                     <textarea id="app-notes" name="notes" rows="4">{{ edit_application ? edit_application.notes : '' }}</textarea>
                 </div>
                 <div class="form-actions form-field-full">
-                    <div class="form-action-group">
+                    <div class="form-action-group form-action-buttons">
                         <button class="primary" type="submit">{{ edit_application ? 'Save Changes' : 'Create Application' }}</button>
                         {% if edit_application %}
                             <a class="secondary-button" href="{{ path('admin_room_applications') }}">Cancel Edit</a>

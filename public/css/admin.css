@@ -122,6 +122,39 @@ label { display: block; margin: 14px 0 7px; font-size: 13px; font-weight: 700; }
   .admin-main h1 { font-size: 32px; }
 }
 
+
+/* Rooms grouped by dormitory */
+.rooms-by-dorm-panel { overflow: hidden; }
+.room-dorm-group { border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden; margin-bottom: 18px; background: #fff; }
+.room-dorm-group:last-child { margin-bottom: 0; }
+.room-dorm-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px 20px; background: #f7f7f7; border-bottom: 1px solid #e5e5e5; }
+.room-dorm-heading h3 { margin: 0; font-size: 17px; }
+.room-dorm-heading p { margin: 5px 0 0; color: #777; font-size: 13px; }
+.room-group-table-wrap { overflow-x: auto; }
+.room-group-table-wrap table { min-width: 0; }
+.empty-state { padding: 20px 0; color: #777; }
+
+/* Matching Edit form action buttons */
+.form-action-buttons .primary,
+.form-action-buttons .secondary-button {
+  width: 150px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0 16px;
+  margin-top: 0;
+  flex: 0 0 150px;
+}
+
+@media (max-width: 700px) {
+  .room-dorm-heading { align-items: flex-start; flex-direction: column; }
+  .form-action-buttons { width: 100%; }
+  .form-action-buttons .primary,
+  .form-action-buttons .secondary-button {
+    width: 100%;
+    flex: 1 1 180px;
+  }
+}
+
 /* Room application UI refinements */
 .panel-heading-row {
   display: flex;
